@@ -2,13 +2,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-dotenv.config();
+const cookieParser = require('cookie-parser');
+const adminRoutes=require('./routes/admin')
+const userRoutes=require('./routes/userRoutes')
+const donationRoutes = require('./routes/donationRoutes');
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
 const app = express();
 app.use(cors({
   origin: 'http://localhost:5173'
 }));
+app.use(bodyParser.json());
 app.use(express.json());
+app.use(cookieParser());
 const uri = process.env.MONGO_URI;
 
 if (!uri) {
@@ -17,8 +24,9 @@ if (!uri) {
 }
 
 // Routes
-const donationRoutes = require('./routes/donationRoutes');
 app.use('/api/donations', donationRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 mongoose.connect(process.env.MONGO_URI, {
 }).then(() => {

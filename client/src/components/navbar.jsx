@@ -12,11 +12,12 @@ const FloatingNav = () => {
       >
         Track
       </a>
-
+      <a href="/login">
       <button className="relative text-lg font-medium px-4 py-1.5 rounded-full  hover:text-gray-600">
         Login
         <span className="absolute bottom-0 left-1/2 w-1/2 -translate-x-1/2 h-px bg-gradient-to-r from-transparent via-black to-transparent" />
       </button>
+      </a>
     </div>
   );
 };

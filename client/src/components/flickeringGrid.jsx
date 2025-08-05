@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const FlickeringGrid = ({
   squareSize = 6,
-  gridGap = 20,
+  gridGap = 50,
   flickerChance = 0.1,
   color = "white",
   width,
