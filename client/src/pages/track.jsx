@@ -21,7 +21,7 @@ const Track = () => {
         <h1 className="text-2xl font-semibold">Donation Tracker</h1>
         <button
           onClick={handleClick}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition duration-300"
+          className="bg-green-300 hover:bg-green-500 text-black font-medium px-4 py-2 rounded-lg transition duration-300"
         >
           {showForm ? "Close Form" : "Add Donation"}
         </button>
@@ -35,6 +35,13 @@ const Track = () => {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-700 w-full max-w-lg mx-4">
+            <button
+            className="absolute bg-red-500 top-4 right-4 px-3 py-1 border border-gray-300 rounded-md ho text-sm font-semibold"
+            onClick={handleClick}
+          >
+            X
+          </button>
+
             <AddDonation />
           </div>
         </div>

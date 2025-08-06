@@ -7,12 +7,15 @@ const adminRoutes=require('./routes/admin')
 const userRoutes=require('./routes/userRoutes')
 const donationRoutes = require('./routes/donationRoutes');
 const bodyParser = require('body-parser');
+const {verifyToken, isAdmin}=require('./middleware/auth')
 require('dotenv').config();
 
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173'
+  origin: 'http://localhost:5173', 
+  credentials: true                
 }));
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(cookieParser());
@@ -24,9 +27,9 @@ if (!uri) {
 }
 
 // Routes
-app.use('/api/donations', donationRoutes);
+app.use('/api/donations',verifyToken, donationRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('api/admin',adminRoutes)
 
 mongoose.connect(process.env.MONGO_URI, {
 }).then(() => {

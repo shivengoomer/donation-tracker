@@ -1,121 +1,143 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useAuth } from '../middleware/authProvider'; // adjust path if needed
+import { useNavigate } from 'react-router-dom';
 
-const Form = () => {
-  return (
-    <StyledWrapper>
-      <form className="form">
-        <p className="form-title">Sign in to your account</p>
-        <div className="input-container">
-          <input placeholder="Enter email" type="email" />
-          <span>
-            <svg stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-            </svg>
-          </span>
-        </div>
-        <div className="input-container">
-          <input placeholder="Enter password" type="password" />
-          <span>
-            <svg stroke="currentColor" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-              <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-            </svg>
-          </span>
-        </div>
-        <button className="submit" type="submit">
-          Sign in
+const AuthForm = () => {
+  const [isSignup, setIsSignup] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+  const { user, setUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const endpoint = isSignup
+      ? 'http://localhost:5000/api/user/signup'
+      : 'http://localhost:5000/api/user/login';
+
+    try {
+      await axios.post(endpoint, formData, {
+        withCredentials: true,
+      });
+      const res = await axios.get('http://localhost:5000/api/user/me', {
+        withCredentials: true,
+      });
+
+      setUser(res.data);
+      alert("Login Succesfull!")
+      navigate('/track'); // Redirect only after successful login/signup
+    } catch (err) {
+      setError(err.response?.data?.message || 'Something went wrong');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:5000/api/user/logout', {}, {
+        withCredentials: true,
+      });
+      setUser(null);
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+  };
+
+  // 🔁 If user is already logged in, just show user info & logout
+  if (user) {
+    return (
+      <div className="max-w-md mx-auto mt-20 p-6 border rounded-xl shadow-md bg-white text-center">
+        <h2 className="text-xl font-semibold mb-2">Welcome, {user.username} 👋</h2>
+        <p className="text-gray-600">Email: {user.email}</p>
+
+        <button
+          onClick={handleLogout}
+          className="mt-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        >
+          Logout
         </button>
-        <p className="signup-link">
-          No account?
-          <a href>Sign up</a>
-        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-lg mx-auto mt-12 p-6 border rounded-xl shadow-md bg-white">
+      <h2 className="text-2xl font-bold mb-4 text-center">
+        {isSignup ? 'Sign Up' : 'Login'}
+      </h2>
+
+      {error && <div className="text-red-500 mb-4 text-sm text-center">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Username</label>
+          <input
+            type="text"
+            name="username"
+            required
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        {isSignup && (
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+            />
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium">Password</label>
+          <input
+            type="password"
+            name="password"
+            required
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+        >
+          {isSignup ? 'Sign Up' : 'Login'}
+        </button>
       </form>
-    </StyledWrapper>
+
+      <p className="text-sm text-center mt-4">
+        {isSignup ? "Already have an account?" : "Don't have an account?"}{' '}
+        <button
+          className="text-blue-600 hover:underline"
+          onClick={() => {
+            setIsSignup(!isSignup);
+            setFormData({ username: '', email: '', password: '' });
+            setError('');
+          }}
+        >
+          {isSignup ? 'Login' : 'Sign Up'}
+        </button>
+      </p>
+    </div>
   );
-}
+};
 
-const StyledWrapper = styled.div`
-  .form {
-    background-color: #fff;
-    display: block;
-    padding: 1rem;
-    max-width: 500px;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-
-  .form-title {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-    text-align: center;
-    color: #000;
-  }
-
-  .input-container {
-    position: relative;
-  }
-
-  .input-container input, .form button {
-    outline: none;
-    border: 1px solid #e5e7eb;
-    margin: 8px 0;
-  }
-
-  .input-container input {
-    background-color: #fff;
-    padding: 1rem;
-    padding-right: 3rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    width: 300px;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-
-  .input-container span {
-    display: grid;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    place-content: center;
-  }
-
-  .input-container span svg {
-    color: #9CA3AF;
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .submit {
-    display: block;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    background-color: #4F46E5;
-    color: #ffffff;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    width: 100%;
-    border-radius: 0.5rem;
-    text-transform: uppercase;
-  }
-
-  .signup-link {
-    color: #6B7280;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    text-align: center;
-  }
-
-  .signup-link a {
-    text-decoration: underline;
-  }`;
-
-export default Form;
+export default AuthForm;

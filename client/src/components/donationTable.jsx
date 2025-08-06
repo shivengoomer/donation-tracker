@@ -15,7 +15,9 @@ const DonationTable = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/donations");
+        const res = await axios.get("http://localhost:5000/api/donations", {
+          withCredentials: true
+        });
         setDonations(res.data);
         setFilteredDonations(res.data);
       } catch (err) {
@@ -58,7 +60,7 @@ const DonationTable = () => {
     try {
       const res = await axios.put(`http://localhost:5000/api/donations/${id}`, {
         amount: Number(editedAmount),
-      });
+      },{withCredentials:true});
 
       const updated = donations.map((donation) =>
         donation._id === id ? { ...donation, amount: res.data.amount } : donation

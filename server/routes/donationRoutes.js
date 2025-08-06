@@ -1,39 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const Donation = require('../models/donation');
-
-// POST /api/donations - Add a new donation
-router.post('/', async (req, res) => {
+router.post('/',   async (req, res) => {
   try {
-    const newDonation = new Donation(req.body);
+    const newDonation = new Donation({...req.body,
+      userId: req.user._id,
+    });
     const savedDonation = await newDonation.save();
     res.status(201).json(savedDonation);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
-
-// GET /api/donations - Get all donations
-router.get('/', async (req, res) => {
+router.get('/',   async (req, res) => {
   try {
-    const donations = await Donation.find().sort({ createdAt: -1 });
+    let donations;
+
+    if (req.user.isAdmin) {
+      donations = await Donation.find()
+        .populate('userId', 'username email')
+        .sort({ createdAt: -1 });
+    } else {
+      donations = await Donation.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    }
+
     res.json(donations);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// PUT /api/donations/:id - Update a donation
-router.put('/:id', async (req, res) => {
+router.put('/:id',   async (req, res) => {
   try {
-    const updatedDonation = await Donation.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const filter = req.user.isAdmin
+      ? { _id: req.params.id }
+      : { _id: req.params.id, userId: req.user._id };
+
+    const updatedDonation = await Donation.findOneAndUpdate(filter, req.body, { new: true });
 
     if (!updatedDonation) {
-      return res.status(404).json({ error: 'Donation not found' });
+      return res.status(404).json({ error: 'Donation not found or access denied' });
     }
 
     res.json(updatedDonation);
@@ -42,13 +48,17 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/donations/:id - Delete a donation
-router.delete('/:id', async (req, res) => {
+
+router.delete('/:id',   async (req, res) => {
   try {
-    const deletedDonation = await Donation.findByIdAndDelete(req.params.id);
+    const filter = req.user.isAdmin
+      ? { _id: req.params.id }
+      : { _id: req.params.id, userId: req.user._id };
+
+    const deletedDonation = await Donation.findOneAndDelete(filter);
 
     if (!deletedDonation) {
-      return res.status(404).json({ error: 'Donation not found' });
+      return res.status(404).json({ error: 'Donation not found or access denied' });
     }
 
     res.json({ message: 'Donation deleted successfully' });

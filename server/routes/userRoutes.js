@@ -2,22 +2,39 @@ const express = require('express');
 const router = express.Router();
 const user= require('../models/user')
 const bcrypt = require('bcrypt')
-const {verifyToken} =require('../middleware/auth')
+const {verifyToken, isAdmin} =require('../middleware/auth')
 const jwt = require('jsonwebtoken')
-router.post('/signup' ,async (req , res)=>{
-    const { username, email, password } = req.body;
-    try {
-        const existingUser=await user.findOne({email});
-        if (existingUser) return res.status(400).json({ message: 'User already exists' });
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new user({ username, email, password: hashedPassword,isAdmin:false });
-        await newUser.save();
-        res.status(201).json({ message: 'Signup successful' })
-    } catch (error) {
-        console.log(error);
-        res.json({error});
-    }
-})
+router.post('/signup', async (req, res) => {
+  const { username, email, password } = req.body;
+  try {
+    const existingUser = await user.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new user({ username, email, password: hashedPassword, isAdmin: false });
+    await newUser.save();
+
+    // 🔐 Generate token like in login
+    const token = jwt.sign(
+      { id: newUser._id, isAdmin: newUser.isAdmin },
+      process.env.JWT
+    );
+
+    // 🍪 Set token cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,       // Set to true in production with HTTPS
+      sameSite: 'Strict',
+    });
+
+    // ✅ Return user info or success
+    res.status(201).json({ message: 'Signup successful', token });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Signup failed', error: error.message });
+  }
+});
 
 router.post('/login', async (req, res) => {
   try {
@@ -49,13 +66,30 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/me', verifyToken, (req, res) => {
-  res.json({
-    id: req.user._id,
-    username: req.user.username,
-    email: req.user.email,
-    isAdmin: req.user.isAdmin,
-    createdAt: req.user.createdAt,
-  });
+router.get('/me',verifyToken, async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'Unauthorized: Invalid token payload' });
+    }
+    const currentUser = await user.findById(req.user.id).select('-password');
+    if (!currentUser) {
+      return res.status(404).json({ message: 'User not found in database' });
+    }
+    if (currentUser.isAdmin) {
+      const allUsers = await user.find().select('-password');
+      return res.json({ isAdmin: true, users: allUsers });
+      
+    }
+
+res.json({ ...currentUser.toObject(), email: 'adminJi' });
+  } catch (err) {
+    console.error('ME Route Error:', err);
+    res.status(500).json({ message: 'Error fetching user data', error: err.message });
+  }
 });
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token').status(200).json({ message: 'Logged out successfully' });
+});
+
 module.exports=router;

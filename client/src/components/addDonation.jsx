@@ -25,7 +25,11 @@ const AddDonation = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/donations', donationData);
+     const response = await axios.post(
+      'http://localhost:5000/api/donations',
+      donationData,
+      { withCredentials: true }
+      );
       console.log('Server response:', response.data);
     } catch (error) {
       console.error('Error submitting donation:', error);
