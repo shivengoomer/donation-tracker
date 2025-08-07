@@ -34,7 +34,9 @@ const AuthForm = () => {
 
       setUser(res.data);
       alert("Login Succesfull!")
-      navigate('/track'); // Redirect only after successful login/signup
+      if(res.data.isAdmin){ navigate('/admin')}
+      else{navigate('/track')};
+
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
     }
@@ -51,7 +53,6 @@ const AuthForm = () => {
     }
   };
 
-  // 🔁 If user is already logged in, just show user info & logout
   if (user) {
     return (
       <div className="max-w-md mx-auto mt-20 p-6 border rounded-xl shadow-md bg-white text-center">

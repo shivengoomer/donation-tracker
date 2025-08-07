@@ -19,6 +19,7 @@ const DonationTable = () => {
           withCredentials: true
         });
         setDonations(res.data);
+        
         setFilteredDonations(res.data);
       } catch (err) {
         console.error("Error fetching donations:", err);
@@ -88,25 +89,25 @@ const DonationTable = () => {
           placeholder="Filter by NGO Name"
           value={ngoFilter}
           onChange={(e) => setNgoFilter(e.target.value)}
-          className="px-3 py-2 rounded bg-gray-800 border border-gray-600 placeholder-gray-400"
+          className="px-3 py-2 rounded bg-black border border-gray-600 placeholder-gray-400"
         />
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="px-3 py-2 rounded bg-gray-800 border border-gray-600 text-white"
+          className="px-3 py-2 rounded bg-black border border-gray-600 text-white"
         />
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="px-3 py-2 rounded bg-gray-800 border border-gray-600 text-white"
+          className="px-3 py-2 rounded bg-black border border-gray-600 text-white"
         />
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="table-auto w-full border-collapse border border-gray-600 bg-black">
+        <table className="table-auto w-full border-collapse border border-gray-600">
           <thead>
             <tr className="bg-gray-800 text-left">
               <th className="border border-gray-700 px-4 py-2">NGO Name</th>

@@ -15,13 +15,13 @@ router.post('/',   async (req, res) => {
 router.get('/',   async (req, res) => {
   try {
     let donations;
-
     if (req.user.isAdmin) {
       donations = await Donation.find()
         .populate('userId', 'username email')
         .sort({ createdAt: -1 });
     } else {
-      donations = await Donation.find({ userId: req.user._id }).sort({ createdAt: -1 });
+      donations = await Donation.find({ userId: req.user.id }).sort({ createdAt: -1 });
+      
     }
 
     res.json(donations);

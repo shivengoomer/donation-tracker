@@ -17,8 +17,9 @@ const Track = () => {
         <FlickeringGrid />
       </div>
 
-      <header className="w-full px-6 py-4 bg-gray-900/70 backdrop-blur-md shadow-md flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Donation Tracker</h1>
+     <header className="fixed w-full backdrop-blur-sm px-6 py-1 bg-black/5 flex justify-between items-center">
+
+        <h1 className="py-2 text-3xl font-[Nunito]">Donation Tracker</h1>
         <button
           onClick={handleClick}
           className="bg-green-300 hover:bg-green-500 text-black font-medium px-4 py-2 rounded-lg transition duration-300"
@@ -27,7 +28,7 @@ const Track = () => {
         </button>
       </header>
 
-      <main className="p-6 pt-8 max-w-5xl mx-auto space-y-6">
+      <main className="mt-3 p-6 pt-8 max-w-full  mx-auto space-y-6">
         <DonationTable />
         <DonationAnalytics />
       </main>

@@ -6,6 +6,7 @@ import Track from './pages/track';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './middleware/authProvider';
 import PrivateRoute from './middleware/privateProvider';
+import Dashboard from './pages/dashboard';
 function App() {
   return (
     <AuthProvider>
@@ -16,6 +17,11 @@ function App() {
           <Route path="/track" element={
             <PrivateRoute>
               <Track />
+            </PrivateRoute>
+          } />
+          <Route path="/admin" element={
+            <PrivateRoute>
+              <Dashboard />
             </PrivateRoute>
           } />
         </Routes>

@@ -65,28 +65,29 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ message: 'Login failed', error: error.message });
   }
 });
-
 router.get('/me',verifyToken, async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Unauthorized: Invalid token payload' });
     }
-    const currentUser = await user.findById(req.user.id).select('-password');
-    if (!currentUser) {
+
+    const User = await user.findById(req.user.id).select('-password');
+    if (!user) {
       return res.status(404).json({ message: 'User not found in database' });
     }
-    if (currentUser.isAdmin) {
+
+    if (User.isAdmin) {
       const allUsers = await user.find().select('-password');
       return res.json({ isAdmin: true, users: allUsers });
-      
     }
 
-res.json({ ...currentUser.toObject(), email: 'adminJi' });
-  } catch (err) {
-    console.error('ME Route Error:', err);
-    res.status(500).json({ message: 'Error fetching user data', error: err.message });
+    res.json({User});
+  }catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+
 
 router.post('/logout', (req, res) => {
   res.clearCookie('token').status(200).json({ message: 'Logged out successfully' });

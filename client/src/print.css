@@ -1,0 +1,47 @@
+@media print {
+  @page {
+    size: auto;
+    margin: 0;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  header, nav, footer, .no-print, button {
+    display: none !important;
+  }
+
+  .bg-black, .bg-black\/95, .bg-\[\#1e293b\], .bg-\[\#334155\] {
+    background-color: white !important;
+  }
+
+  .text-white, .text-gray-300, .text-gray-400, .text-\[\#facc15\] {
+    color: black !important;
+  }
+
+  .recharts-text,
+  .recharts-pie-label-text,
+  .recharts-cartesian-axis-tick-value {
+    fill: black !important;
+  }
+
+  .recharts-line path {
+    stroke: black !important;
+  }
+
+  .print-section {
+    page-break-before: always !important;
+    break-before: always !important;
+  }
+
+  .print-avoid-break,
+  .chart-container,
+  .table-container {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
